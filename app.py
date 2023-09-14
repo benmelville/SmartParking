@@ -1,23 +1,117 @@
-from flask import Flask, redirect, url_for, render_template, request
+from flask import Flask, redirect, url_for, render_template, request, session, flash
+from datetime import timedelta
+import pyrebase
+import requests
+import json
+import re
+
 app = Flask(__name__)
+app.secret_key = "hello"
+app.permanent_session_lifetime = timedelta(minutes=5)
+
+firebaseConfig = dict(apiKey="AIzaSyDyt_QkHxhpgLxKHppnI_pjhZQDZV9dGZA",
+                      authDomain="smart-parking-d841d.firebaseapp.com", projectId="smart-parking-d841d",
+                      storageBucket="smart-parking-d841d.appspot.com", messagingSenderId="189936042589",
+                      appId="1:189936042589:web:772ac9d4e09cf11d8043b4", measurementId="G-5PCDRVSEVK",
+                      databaseURL="https://smart-parking-d841d-default-rtdb.firebaseio.com/")
+
+firebase = pyrebase.initialize_app(firebaseConfig)
+
+db = firebase.database()
+auth = firebase.auth()
+
+
+# storage = firebase.storage()
+
 
 @app.route('/')
-def home():  # put application's code here
-    return render_template("index.html", content=["ben", "joe", "bill"])
+def home():
 
+    return render_template("index.html")
 
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == "POST":
-        user = request.form["name"]
-        return redirect(url_for("user", user=user))
-    return render_template("login.html")
+        session.permanent = True
+        user_email = request.form["email"]
+        user_password = request.form["password"]
+        session["userEmail"] = user_email
+        session["password"] = user_password
+        try:
+            auth.sign_in_with_email_and_password(email=user_email, password=user_password)
+            return "<h1>signed in</h1>"
+        except:
+            flash("Incorrect Username or Password", "error")
+            return redirect(url_for("login"))
+        # return redirect(url_for("user"))
+    else:
+        if "user" in session:
+            return redirect(url_for("user"))
+        return render_template("login.html")
 
 
-@app.route('/<user>')
-def user(user):
-    return f"<h1>{user}</h1>"
+@app.route('/user')
+def user():
+    if "user" in session:
+        user = session["user"]
+        return f'<h1>{user}</h1>'
+    else:
+        return redirect(url_for("login"))
+
+
+@app.route('/logout')
+def logout():
+    session.pop("user", None)
+    return redirect(url_for("login"))
+
+
+@app.route('/signup', methods=["POST", "GET"])
+def signup():
+
+    if request.method == "POST":
+        username = request.form["username"]
+        user_email = request.form["email"]
+        user_password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+
+        if user_password != confirm_password:
+            flash("Passwords do not match, please try again.")
+            return redirect(url_for('signup'))
+
+        if username in list(db.child("accounts").shallow().get().val()):
+            flash("There is already an account associated with this username.")
+            return redirect(url_for('signup'))
+
+        if not re.match(r'^[a-zA-Z0-9]+$', username):
+            flash("Username can only contain letters and numbers")
+            return redirect(url_for('signup'))
+
+        try:
+            auth.create_user_with_email_and_password(user_email, user_password)
+        except requests.exceptions.HTTPError as error:
+            error_json = error.args[1]
+            error_dict = json.loads(error_json)["error"]
+            error_message = error_dict["message"]
+
+            if "EMAIL_EXISTS" in error_message:
+                flash("There is already an account associated with this email.")
+
+            elif "WEAK_PASSWORD" in error_message:
+                flash("Password should be at least 6 characters.")
+
+            else:
+                flash("An unknown error occurred please try again.")
+
+            return redirect(url_for("signup"))
+
+        db.child("accounts").child(username).set({"email": user_email})
+        flash("Your account has been created!")
+        return redirect(url_for("login"))
+
+    else:
+        return render_template("signup.html")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
