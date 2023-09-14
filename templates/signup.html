@@ -1,20 +1,38 @@
 {% extends "base.html" %}
-{% block title %}Signup Page{% endblock %}
+{% block title %}Sign up{% endblock %}
+{% block heading %}Sign up{% endblock %}
 
 {% block content %}
     {% with messages =  get_flashed_messages() %}
         {% if messages %}
             {% for msg in messages %}
-                <p>{{ msg }}</p>
+                <div class="alert alert-danger" role="alert">{{ msg }}</div>
             {% endfor %}
         {% endif %}
     {% endwith %}
-<form action="#" method="post">
-    <p>Username: <input type="text" name="username"></p>
-    <p>Email: <input type="text" name="email"></p>
-    <p>Password: <input type="password" name="password"></p>
-    <p>Confirm Password: <input type="password" name="confirm_password"></p>
-    <p><input type="submit" value="submit"></p>
+    <div class="container">
+        <form action="#" method="post">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="floatingInput" placeholder="GeorgePBurdell" name="username">
+                <label for="floatingInput">Username</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="floatingInput" placeholder="GeorgePBurdell@example.com"
+                       name="email">
+                <label for="floatingInput">Email address</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="floatingPassword" placeholder="Password"
+                       name="password">
+                <label for="floatingPassword">Password</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="floatingPassword" placeholder="Password"
+                       name="confirm_password">
+                <label for="floatingPassword">Confirm Password</label>
+            </div>
+            <button type="submit" value="submit" class="btn btn-outline-primary">Submit</button>
 
-</form>
+        </form>
+    </div>
 {% endblock %}

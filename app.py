@@ -26,43 +26,46 @@ auth = firebase.auth()
 
 @app.route('/')
 def home():
-
-    return render_template("index.html")
+    if "user_email" in session:
+        print("email exists")
+        return render_template("home.html", user=session["user_email"])
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
+    if "user_email" in session:
+        return redirect(url_for("home"))
+
     if request.method == "POST":
-        session.permanent = True
+        # session.permanent = True
         user_email = request.form["email"]
         user_password = request.form["password"]
-        session["userEmail"] = user_email
-        session["password"] = user_password
         try:
             auth.sign_in_with_email_and_password(email=user_email, password=user_password)
-            return "<h1>signed in</h1>"
+            session["user_email"] = user_email
+            return redirect(url_for("home"))
         except:
             flash("Incorrect Username or Password", "error")
             return redirect(url_for("login"))
-        # return redirect(url_for("user"))
-    else:
-        if "user" in session:
-            return redirect(url_for("user"))
-        return render_template("login.html")
+    return render_template("login.html", button_label="Sign Up")
 
 
-@app.route('/user')
-def user():
-    if "user" in session:
-        user = session["user"]
-        return f'<h1>{user}</h1>'
-    else:
-        return redirect(url_for("login"))
+# @app.route('/user')
+# def user():
+#     if "user" in session:
+#         user = session["user"]
+#         return redirect()
+#     else:
+#         return redirect(url_for("login"))
 
 
 @app.route('/logout')
 def logout():
-    session.pop("user", None)
+    # session.permanent = False
+    session.pop("user_email", None)
+    session.clear()
     return redirect(url_for("login"))
 
 
@@ -106,7 +109,7 @@ def signup():
             return redirect(url_for("signup"))
 
         db.child("accounts").child(username).set({"email": user_email})
-        flash("Your account has been created!")
+        flash(f"{username}, your account has been created!")
         return redirect(url_for("login"))
 
     else:
