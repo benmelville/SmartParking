@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}login{% endblock %}
+{% block heading %}login{% endblock %}
+
+{% block content %}
+    {% with messages =  get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                {% if "your account has been created!" in msg %}
+                    <div class="alert alert-success" role="alert">{{ msg }}</div>
+                {% else %}
+                    <div class="alert alert-danger" role="alert">{{ msg }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {#<form action="#" method="post">#}
+    {#    <p>Email: <input type="text" name="email"></p>#}
+    {#    <p>Password: <input type="password" name="password"></p>#}
+    {#    <p><input type="submit" value="submit"></p>#}
+    {##}
+    {#</form>#}
+    <div class="container">
+
+        <form action="#" method="post">
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" name="email" required>
+                <label for="floatingInput">email address</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password" required>
+                <label for="floatingPassword">password</label>
+            </div>
+            <button type="submit" value="submit" class="btn btn-outline-primary">Submit</button>
+        </form>
+    </div>
+{% endblock %}

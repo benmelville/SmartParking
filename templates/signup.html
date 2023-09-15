@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Sign up{% endblock %}
-{% block heading %}Sign up{% endblock %}
+{% block title %}sign up{% endblock %}
+{% block heading %}sign up{% endblock %}
 
 {% block content %}
     {% with messages =  get_flashed_messages() %}
@@ -13,23 +13,23 @@
     <div class="container">
         <form action="#" method="post">
             <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="floatingInput" placeholder="GeorgePBurdell" name="username">
-                <label for="floatingInput">Username</label>
+                <input type="text" class="form-control" id="floatingInput" placeholder="GeorgePBurdell" name="username" required>
+                <label for="floatingInput">username</label>
             </div>
             <div class="form-floating mb-3">
                 <input type="email" class="form-control" id="floatingInput" placeholder="GeorgePBurdell@example.com"
-                       name="email">
-                <label for="floatingInput">Email address</label>
+                       name="email" required>
+                <label for="floatingInput">email address</label>
             </div>
             <div class="form-floating mb-3">
                 <input type="password" class="form-control" id="floatingPassword" placeholder="Password"
-                       name="password">
-                <label for="floatingPassword">Password</label>
+                       name="password"required>
+                <label for="floatingPassword">password</label>
             </div>
             <div class="form-floating mb-3">
                 <input type="password" class="form-control" id="floatingPassword" placeholder="Password"
-                       name="confirm_password">
-                <label for="floatingPassword">Confirm Password</label>
+                       name="confirm_password" required>
+                <label for="floatingPassword">confirm password</label>
             </div>
             <button type="submit" value="submit" class="btn btn-outline-primary">Submit</button>
 

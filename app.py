@@ -80,15 +80,18 @@ def signup():
 
         if user_password != confirm_password:
             flash("Passwords do not match, please try again.")
-            return redirect(url_for('signup'))
+            # return redirect(url_for('signup'))
 
         if username in list(db.child("accounts").shallow().get().val()):
             flash("There is already an account associated with this username.")
-            return redirect(url_for('signup'))
+            # return redirect(url_for('signup'))
 
         if not re.match(r'^[a-zA-Z0-9]+$', username):
             flash("Username can only contain letters and numbers")
-            return redirect(url_for('signup'))
+            # return redirect(url_for('signup'))
+
+        # return redirect(url_for('signup'))
+
 
         try:
             auth.create_user_with_email_and_password(user_email, user_password)
@@ -100,11 +103,11 @@ def signup():
             if "EMAIL_EXISTS" in error_message:
                 flash("There is already an account associated with this email.")
 
-            elif "WEAK_PASSWORD" in error_message:
+            if "WEAK_PASSWORD" in error_message:
                 flash("Password should be at least 6 characters.")
 
-            else:
-                flash("An unknown error occurred please try again.")
+            # else:
+            #     flash("An unknown error occurred please try again.")
 
             return redirect(url_for("signup"))
 
