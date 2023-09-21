@@ -124,6 +124,17 @@ def signup():
 
     else:
         return render_template("signup.html")
+    
+
+@app.route('/add_license_number', methods=["GET"])
+def add_license_number():
+    return redirect(url_for("add_license_number"))
+
+
+@app.route('/add_payment', methods=["GET"])
+def add_payment():
+    return redirect(url_for("add_payment"))
+
 
 
 if __name__ == '__main__':

@@ -12,8 +12,8 @@
 
     <div class="d-flex justify-content-center align-items-center">
         <span>
-            <label class="btn btn-outline-primary" for="btn-check-outlined">Add License Number</label>
-            <label class="btn btn-outline-primary" for="btn-check-outlined">Add Credit/Debit Card</label>
+            <label class="btn btn-outline-primary" href="{{ url_for('add_license_number') }}" for="btn-check-outlined">Add License Number</label>
+            <label class="btn btn-outline-primary" href="{{ url_for('add_payment') }}" for="btn-check-outlined">Add Credit/Debit Card</label>
         </span>
     </div>
 {%  endblock %}
