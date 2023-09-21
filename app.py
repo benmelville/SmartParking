@@ -124,16 +124,24 @@ def signup():
 
     else:
         return render_template("signup.html")
-    
-
-@app.route('/add_license_number', methods=["GET"])
-def add_license_number():
-    return redirect(url_for("add_license_number"))
 
 
-@app.route('/add_payment', methods=["GET"])
-def add_payment():
-    return redirect(url_for("add_payment"))
+@app.route('/modify_cars')
+def modify_cars():
+    if "username" in session:
+        return render_template("modify_cars.html")
+    else:
+        flash("Username no longer in session.")
+        return redirect(url_for('login'))
+
+
+@app.route('/modify_payment')
+def modify_payment():
+    if "username" in session:
+        return render_template("modify_payment.html")
+    else:
+        flash("Username no longer in session.")
+        return redirect(url_for('login'))
 
 
 
