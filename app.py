@@ -26,16 +26,16 @@ auth = firebase.auth()
 
 @app.route('/')
 def home():
-    if "user_email" in session:
-        print("email exists")
-        return render_template("home.html", user=session["user_email"])
+    if "username" in session:
+        print("name exists")
+        return render_template("home.html", user=session["username"])
     else:
         return redirect(url_for('login'))
 
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-    if "user_email" in session:
+    if "username" in session:
         return redirect(url_for("home"))
 
     if request.method == "POST":
@@ -44,7 +44,14 @@ def login():
         user_password = request.form["password"]
         try:
             auth.sign_in_with_email_and_password(email=user_email, password=user_password)
-            session["user_email"] = user_email
+
+            accounts = db.child("accounts").get().val()
+            username = ""
+            for name, account_info in accounts.items():
+                if account_info['email'] == user_email:
+                    username = name
+
+            session["username"] = username
             return redirect(url_for("home"))
         except:
             flash("Incorrect Username or Password", "error")
@@ -64,7 +71,7 @@ def login():
 @app.route('/logout')
 def logout():
     # session.permanent = False
-    session.pop("user_email", None)
+    session.pop("username", None)
     session.clear()
     return redirect(url_for("login"))
 
@@ -111,7 +118,7 @@ def signup():
 
             return redirect(url_for("signup"))
 
-        db.child("accounts").child(username).set({"email": user_email})
+        db.child("accounts").child(username).set({"email": user_email, "username": username})
         flash(f"{username}, your account has been created!")
         return redirect(url_for("login"))
 
