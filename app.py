@@ -48,7 +48,7 @@ def login():
         user_password = request.form["password"]
         try:
             auth.sign_in_with_email_and_password(email=user_email, password=user_password)
-        
+
             accounts = db.child("accounts").get().val()
             username = ""
             for name, account_info in accounts.items():
@@ -156,9 +156,9 @@ def modify_payment():
 
         # Get all cards
         cards = stripe.PaymentMethod.list(
-            customer=stripe_customer_id,
-            type="card",
-        )
+        customer=stripe_customer_id,
+        type="card",
+    )
 
 
         return render_template("modify_payment.html", cards=cards)
