@@ -5,38 +5,15 @@
 {% block content %}
     <h1 style="text-align: center;">Welcome, {{ user }}</h1>
     <br><br>
-    <h2 style="text-align: center;">My Cars: {{ license }}</h2>
+    <h2 style="text-align: center;">My Cars:</h2>
     <br>
     <h2 style="text-align: center;">Payment Info:</h2>
     <br><br>
 
     <div class="d-flex justify-content-center align-items-center">
         <span>
-    <button class="btn btn-outline-primary" id="internal-link-button">Add a License</button>
-
-    <script>
-        document.getElementById('internal-link-button').addEventListener('click', function () {
-            window.location.href = "{{ url_for('addLicense') }}";
-        });
-    </script>
-
-            <label class="btn btn-outline-primary" for="btn-check-outlined">Add Credit/Debit Card</label>
+            <a href="{{ url_for('modify_cars') }}" class="btn btn-outline-primary">Modify Cars</a>
+            <a href="{{ url_for('modify_payment') }}" class="btn btn-outline-primary">Modify Payment Info</a>
         </span>
     </div>
-{% endblock %}
-
-{#<!DOCTYPE html>#}
-{#<html>#}
-{#<head>#}
-{#    <title>Button with Internal Link</title>#}
-{#</head>#}
-{#<body>#}
-{#    <button class="btn btn-outline-primary" id="internal-link-button">This is a button with an internal link</button>#}
-{##}
-{#    <script>#}
-{#        document.getElementById('internal-link-button').addEventListener('click', function() {#}
-{#            window.location.href = "{{ url_for('addLicense') }}";#}
-{#        });#}
-{#    </script>#}
-{#</body>#}
-{#</html>#}
+{%  endblock %}
