@@ -24,13 +24,20 @@ auth = firebase.auth()
 # storage = firebase.storage()
 
 
-@app.route('/')
+@app.route('/',  methods=['POST', 'GET'])
 def home():
-    if "username" in session:
-        print("name exists")
-        return render_template("home.html", user=session["username"])
-    else:
-        return redirect(url_for('login'))
+    if request.method == "GET":
+        if "username" in session:
+            print("name exists")
+            if "user_license_num" in session.keys():
+                license = session["user_license_num"]
+            else:
+                license = ""
+            return render_template("home.html", user=session["username"],
+                                   license=license)
+        else:
+            return redirect(url_for('login'))
+
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -50,10 +57,14 @@ def login():
             for name, account_info in accounts.items():
                 if account_info['email'] == user_email:
                     username = name
+                    # print(f"the email: {account_info['email']}")
+                    # print(f"the username: {name}")
 
             session["username"] = username
             return redirect(url_for("home"))
-        except:
+        except Exception as e:
+            print("something broke")
+            print(f"execption is: {e}")
             flash("Incorrect Username or Password", "error")
             return redirect(url_for("login"))
     return render_template("login.html", button_label="Sign Up")
@@ -125,6 +136,15 @@ def signup():
     else:
         return render_template("signup.html")
 
+@app.route('/addLicense', methods=["POST", "GET"])
+def addLicense():
+    if request.method == "POST":
+        user_license_num = request.form["addLicense"]
+        session["user_license_num"] = user_license_num
+        db.child("accounts").child(session["username"]).update({"license_num": user_license_num})
+        return redirect(url_for("home"))
+    else:
+        return render_template("add_license.html")
 
 if __name__ == '__main__':
     app.run(debug=True)
