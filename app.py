@@ -4,6 +4,10 @@ import pyrebase
 import requests
 import json
 import re
+import stripe
+
+stripe.api_key = 'sk_test_51NvUfwDjldMXbWwWCMm6iC9uxDC88N9mvMhrZwuEd1OtAAyhionlezyws1H3D92ALwqIZkll4qzqmotaeYkwvqlm00yzB1PQkc'
+
 
 app = Flask(__name__)
 app.secret_key = "hello"
@@ -44,7 +48,7 @@ def login():
         user_password = request.form["password"]
         try:
             auth.sign_in_with_email_and_password(email=user_email, password=user_password)
-
+        
             accounts = db.child("accounts").get().val()
             username = ""
             for name, account_info in accounts.items():
@@ -135,10 +139,46 @@ def modify_cars():
         return redirect(url_for('login'))
 
 
-@app.route('/modify_payment')
+@app.route('/modify_payment', methods=["POST", "GET"])
 def modify_payment():
     if "username" in session:
-        return render_template("modify_payment.html")
+        stripe_customer_id = db.child("accounts").child(session["username"]).child("stripe_customer_id").get().val()
+
+        # If the customer does not exist on Stripe, create them
+        if not stripe_customer_id:
+            user_email = db.child("accounts").child(session["username"]).child("email").get().val()
+            customer = stripe.Customer.create(email=user_email)
+
+            db.child("accounts").child(session["username"]).update({"stripe_customer_id": customer.id})
+            stripe_customer_id = customer.id
+
+        customer = stripe.Customer.retrieve(stripe_customer_id)
+
+        # Get all cards
+        cards = stripe.PaymentMethod.list(
+            customer=stripe_customer_id,
+            type="card",
+        )
+
+
+        return render_template("modify_payment.html", cards=cards)
+    else:
+        flash("Username no longer in session.")
+        return redirect(url_for('login'))
+    
+
+@app.route('/add_card', methods=["POST"])
+def add_card():
+    if "username" in session:
+        stripe_customer_id = db.child("accounts").child(session["username"]).child("stripe_customer_id").get().val()
+        token = request.form['stripeToken']
+
+        if stripe_customer_id:
+            customer = stripe.Customer.retrieve(stripe_customer_id)
+            customer.sources.create(source=token)
+
+        flash("Card added successfully!", "success")
+        return redirect(url_for('modify_payment'))
     else:
         flash("Username no longer in session.")
         return redirect(url_for('login'))
