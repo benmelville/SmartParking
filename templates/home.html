@@ -5,14 +5,14 @@
 {% block content %}
     <h1 style="text-align: center;">Welcome, {{ user }}</h1>
     <br><br>
-    <h2 style="text-align: center;">My Cars:</h2>
+    <h2 style="text-align: center;">My Car:</h2>
     <br>
     <h2 style="text-align: center;">Payment Info:</h2>
     <br><br>
 
     <div class="d-flex justify-content-center align-items-center">
         <span>
-            <a href="{{ url_for('modify_cars') }}" class="btn btn-outline-primary">Modify Cars</a>
+            <a href="{{ url_for('addLicense') }}" class="btn btn-outline-primary">Add License</a>
             <a href="{{ url_for('modify_payment') }}" class="btn btn-outline-primary">Modify Payment Info</a>
         </span>
     </div>

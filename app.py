@@ -100,42 +100,49 @@ def signup():
         user_password = request.form["password"]
         confirm_password = request.form["confirm_password"]
 
+        valid = True
+
         if user_password != confirm_password:
             flash("Passwords do not match, please try again.")
+            valid = False
             # return redirect(url_for('signup'))
 
         if username in list(db.child("accounts").shallow().get().val()):
             flash("There is already an account associated with this username.")
+            valid = False
             # return redirect(url_for('signup'))
 
         if not re.match(r'^[a-zA-Z0-9]+$', username):
             flash("Username can only contain letters and numbers")
+            valid = False
             # return redirect(url_for('signup'))
 
         # return redirect(url_for('signup'))
 
+        if valid:
+            try:
+                auth.create_user_with_email_and_password(user_email, user_password)
+            except requests.exceptions.HTTPError as error:
+                error_json = error.args[1]
+                error_dict = json.loads(error_json)["error"]
+                error_message = error_dict["message"]
 
-        try:
-            auth.create_user_with_email_and_password(user_email, user_password)
-        except requests.exceptions.HTTPError as error:
-            error_json = error.args[1]
-            error_dict = json.loads(error_json)["error"]
-            error_message = error_dict["message"]
+                if "EMAIL_EXISTS" in error_message:
+                    flash("There is already an account associated with this email.")
 
-            if "EMAIL_EXISTS" in error_message:
-                flash("There is already an account associated with this email.")
+                if "WEAK_PASSWORD" in error_message:
+                    flash("Password should be at least 6 characters.")
 
-            if "WEAK_PASSWORD" in error_message:
-                flash("Password should be at least 6 characters.")
+                # else:
+                #     flash("An unknown error occurred please try again.")
 
-            # else:
-            #     flash("An unknown error occurred please try again.")
+                return redirect(url_for("signup"))
 
+            db.child("accounts").child(username).set({"email": user_email, "username": username})
+            flash(f"{username}, your account has been created!")
+            return redirect(url_for("login"))
+        else:
             return redirect(url_for("signup"))
-
-        db.child("accounts").child(username).set({"email": user_email, "username": username})
-        flash(f"{username}, your account has been created!")
-        return redirect(url_for("login"))
 
     else:
         return render_template("signup.html")
@@ -150,13 +157,13 @@ def addLicense():
     else:
         return render_template("add_license.html")
 
-@app.route('/modify_cars')
-def modify_cars():
-    if "username" in session:
-        return render_template("modify_cars.html")
-    else:
-        flash("Username no longer in session.")
-        return redirect(url_for('login'))
+# @app.route('/modify_cars')
+# def modify_cars():
+#     if "username" in session:
+#         return render_template("add_license.html")
+#     else:
+#         flash("Username no longer in session.")
+#         return redirect(url_for('login'))
 
 
 @app.route('/modify_payment', methods=["POST", "GET"])
@@ -194,8 +201,21 @@ def add_card():
         token = request.form['stripeToken']
 
         if stripe_customer_id:
-            customer = stripe.Customer.retrieve(stripe_customer_id)
-            customer.sources.create(source=token)
+            payment_method = stripe.PaymentMethod.create(
+                type='card',
+                card={
+                    "token": token
+                }
+            )
+
+            stripe.PaymentMethod.attach(
+                payment_method.id,
+                customer=stripe_customer_id,
+            )
+        else:
+            flash("Something went wrong.")
+            return redirect(url_for('login'))
+
 
         flash("Card added successfully!", "success")
         return redirect(url_for('modify_payment'))
