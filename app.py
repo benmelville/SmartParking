@@ -32,13 +32,23 @@ auth = firebase.auth()
 def home():
     if request.method == "GET":
         if "username" in session:
-            print("name exists")
-            if "user_license_num" in session.keys():
-                license = session["user_license_num"]
-            else:
-                license = ""
-            return render_template("home.html", user=session["username"],
-                                   license=license)
+            user_name = session["username"]
+            try:
+                user_license_num = db.child("accounts").child(user_name).child("license_num").get().val()
+            except:
+                user_license_num = "None"
+
+            stripe_customer_id = db.child("accounts").child(user_name).child("stripe_customer_id").get().val()
+            cards = []
+
+            # If there is a Stripe customer ID, fetch the cards
+            if stripe_customer_id:
+                cards = stripe.PaymentMethod.list(
+                    customer=stripe_customer_id,
+                    type="card",
+                )
+            
+            return render_template("home.html", user=user_name, license=user_license_num, cards=cards.data)
         else:
             return redirect(url_for('login'))
 
@@ -222,6 +232,7 @@ def add_card():
     else:
         flash("Username no longer in session.")
         return redirect(url_for('login'))
+
 
 
 

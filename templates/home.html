@@ -6,13 +6,23 @@
     <h1 style="text-align: center;">Welcome, {{ user }}</h1>
     <br><br>
     <h2 style="text-align: center;">My Car:</h2>
+    <h4 style="text-align: center;">{{ license }}</h4>
     <br>
     <h2 style="text-align: center;">Payment Info:</h2>
+    <div style="text-align: center;">
+        {% for card in cards %}
+        <div class="card mb-2">
+            <div class="card-body">
+                {{ card.card.brand }} ending in {{ card.card.last4 }} (exp. {{ card.card.exp_month }}/{{ card.card.exp_year }})
+            </div>
+        </div>
+        {% endfor %}
+    </div>
     <br><br>
 
     <div class="d-flex justify-content-center align-items-center">
         <span>
-            <a href="{{ url_for('addLicense') }}" class="btn btn-outline-primary">Add License</a>
+            <a href="{{ url_for('addLicense') }}" class="btn btn-outline-primary">Modify License Plate</a>
             <a href="{{ url_for('modify_payment') }}" class="btn btn-outline-primary">Modify Payment Info</a>
         </span>
     </div>
