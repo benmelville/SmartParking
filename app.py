@@ -47,8 +47,12 @@ def home():
                     customer=stripe_customer_id,
                     type="card",
                 )
+
+            tag_ID = db.child("accounts").child(user_name).child("tag_ID").get().val()
+            if tag_ID == "":
+                tag_ID = "No assigned RF tag"
             
-            return render_template("home.html", user=user_name, license=user_license_num, cards=cards.data)
+            return render_template("home.html", user=user_name, license=user_license_num, cards=cards.data, tag_ID=tag_ID)
         else:
             return redirect(url_for('login'))
 
