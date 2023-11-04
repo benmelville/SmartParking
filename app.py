@@ -48,11 +48,11 @@ def home():
                     type="card",
                 )
 
-            tag_ID = db.child("accounts").child(user_name).child("tag_ID").get().val()
-            if tag_ID == "":
-                tag_ID = "No assigned RF tag"
+            tag_id = db.child("accounts").child(user_name).child("tag_id").get().val()
+            if tag_id == "":
+                tag_id = "No assigned RF tag"
             
-            return render_template("home.html", user=user_name, license=user_license_num, cards=cards.data, tag_ID=tag_ID)
+            return render_template("home.html", user=user_name, license=user_license_num, cards=cards.data, tag_id=tag_id)
         else:
             return redirect(url_for('login'))
 
