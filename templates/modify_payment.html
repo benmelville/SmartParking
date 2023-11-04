@@ -10,17 +10,20 @@
         <div class="col-md-6">
 
             <!-- Display user's stored cards -->
-            <h4 class="text-center mb-3">Your Cards:</h4>
-            {% for card in cards %}
-            <div class="card mb-2">
-                <div class="card-body">
-                    {{ card.card.brand }} ending in {{ card.card.last4 }} (exp. {{ card.card.exp_month }}/{{ card.card.exp_year }})
+            <h4 class="text-center mb-3">Your Card:</h4>
+            {% if card is none %}
+                <h5 class="text-center mb-3">No card on file</h5>
+            {% else %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        {{ card.card.brand }} ending in {{ card.card.last4 }} (exp. {{ card.card.exp_month }}/{{ card.card.exp_year }})
+                    </div>
                 </div>
-            </div>
-            {% endfor %}
+            {% endif %}
+
 
             <!-- Add a new card form -->
-            <h4 class="text-center mt-5 mb-3">Add a New Card:</h4>
+            <h4 class="text-center mt-5 mb-3">New Card:</h4>
             <form action="{{ url_for('add_card') }}" method="post" id="payment-form">
                 <div class="form-row mb-3">
                     <label for="card-element">Credit or debit card</label>
@@ -31,7 +34,7 @@
                     <div id="card-errors" role="alert"></div>
                 </div>
                 <div class="d-flex justify-content-center">
-                    <button type="submit" class="btn btn-primary">Add New Card</button>
+                    <button type="submit" class="btn btn-primary">Add/Modify Card</button>
                 </div>
             </form>
 

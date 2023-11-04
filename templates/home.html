@@ -9,15 +9,15 @@
     <h4 style="text-align: center;">{{ license }}</h4>
     <br>
     <h2 style="text-align: center;">Payment Info:</h2>
-    <div style="text-align: center;">
-        {% for card in cards %}
+    {% if card is none %}
+        <h4 class="text-align: center;">No card on file</h4>
+    {% else %}
         <div class="card mb-2">
             <div class="card-body">
                 {{ card.card.brand }} ending in {{ card.card.last4 }} (exp. {{ card.card.exp_month }}/{{ card.card.exp_year }})
             </div>
         </div>
-        {% endfor %}
-    </div>
+    {% endif %}
     <br>
     <h2 style="text-align: center;">Tag ID:</h2>
     <h4 style="text-align: center;">{{ tag_id }}</h4>

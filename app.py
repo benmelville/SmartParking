@@ -38,21 +38,23 @@ def home():
             except:
                 user_license_num = "None"
 
-            stripe_customer_id = db.child("accounts").child(user_name).child("stripe_customer_id").get().val()
-            cards = []
-
-            # If there is a Stripe customer ID, fetch the cards
-            if stripe_customer_id:
+            try:
+                stripe_customer_id = db.child("accounts").child(user_name).child("stripe_customer_id").get().val()
+                
                 cards = stripe.PaymentMethod.list(
                     customer=stripe_customer_id,
                     type="card",
                 )
+                card = cards.data[0]
+            except:
+                card = None
+
 
             tag_id = db.child("accounts").child(user_name).child("tag_id").get().val()
             if tag_id == "":
                 tag_id = "No assigned RF tag"
             
-            return render_template("home.html", user=user_name, license=user_license_num, cards=cards.data, tag_id=tag_id)
+            return render_template("home.html", user=user_name, license=user_license_num, card=card, tag_id=tag_id)
         else:
             return redirect(url_for('login'))
 
@@ -197,12 +199,16 @@ def modify_payment():
 
         # Get all cards
         cards = stripe.PaymentMethod.list(
-        customer=stripe_customer_id,
-        type="card",
-    )
+            customer=stripe_customer_id,
+            type="card",
+        )
 
+        try:
+            card = cards.data[0]
+        except:
+            card = None
 
-        return render_template("modify_payment.html", cards=cards)
+        return render_template("modify_payment.html", card=card)
     else:
         flash("Username no longer in session.")
         return redirect(url_for('login'))
@@ -215,6 +221,14 @@ def add_card():
         token = request.form['stripeToken']
 
         if stripe_customer_id:
+            current_cards = stripe.PaymentMethod.list(
+                customer=stripe_customer_id,
+                type='card'
+            )
+            for card in current_cards:
+                stripe.PaymentMethod.detach(card.id)
+            
+            # Create a new payment method
             payment_method = stripe.PaymentMethod.create(
                 type='card',
                 card={
@@ -222,6 +236,7 @@ def add_card():
                 }
             )
 
+            # Attach the new payment method to the customer
             stripe.PaymentMethod.attach(
                 payment_method.id,
                 customer=stripe_customer_id,
