@@ -154,7 +154,7 @@ def signup():
 
                 return redirect(url_for("signup"))
 
-            db.child("accounts").child(username).set({"email": user_email, "username": username, "tag_id": "0"})
+            db.child("accounts").child(username).set({"email": user_email, "username": username, "tag_id": ""})
             flash(f"{username}, your account has been created!")
             return redirect(url_for("login"))
         else:
